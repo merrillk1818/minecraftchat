@@ -1,0 +1,28 @@
+# Local development overrides — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# or:
+#   make dev
+#
+# Differences from production:
+#   - Nginx serves HTTP only on port 80 (no SSL certs required)
+#   - APP_ENV=local, APP_DEBUG=true
+#   - Turnstile skipped (empty keys bypass the widget)
+
+services:
+  nginx:
+    volumes:
+      - ./nginx/conf.d/dev:/etc/nginx/conf.d:ro
+      - ./laravel/public:/var/www/html/public:ro
+      - laravel_storage:/var/www/html/storage:ro
+
+  laravel:
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost
+
+  queue-worker:
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost

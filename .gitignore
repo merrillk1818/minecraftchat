@@ -1,0 +1,15 @@
+.env
+laravel/.env
+laravel/vendor/
+laravel/node_modules/
+laravel/storage/logs/
+laravel/storage/framework/cache/
+laravel/storage/framework/sessions/
+laravel/storage/framework/views/
+laravel/bootstrap/cache/
+python-api/__pycache__/
+python-api/*.pyc
+python-api/venv/
+data/docs/
+*.log
+.DS_Store

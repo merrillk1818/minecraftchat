@@ -1,0 +1,263 @@
+/* ============================================================
+   MinecraftChat AI — Admin Panel Styles
+   ============================================================ */
+
+.admin-body {
+  overflow-y: auto;
+  height: auto;
+  min-height: 100vh;
+}
+
+.admin-badge {
+  font-size: 0.45rem;
+  background: var(--mc-redstone);
+  color: #fff;
+  padding: 4px 8px;
+  border: 1px solid #000;
+  text-shadow: 1px 1px 0 #000;
+  box-shadow: inset 1px 1px rgba(255,255,255,0.2);
+}
+
+/* ── Admin nav ──────────────────────────────────────────────── */
+.admin-nav {
+  background: var(--mc-obsidian);
+  border-bottom: 2px solid var(--mc-border);
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+}
+
+.admin-nav-btn {
+  font-size: 0.5rem;
+  padding: 12px 18px;
+  color: var(--mc-text-dim);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  letter-spacing: 0.04em;
+  text-shadow: 1px 1px 0 #000;
+  transition: color 0.1s;
+}
+.admin-nav-btn:hover { color: var(--mc-text); }
+.admin-nav-btn.active { color: var(--mc-text-gold); border-bottom-color: var(--mc-gold); }
+
+/* ── Main content ───────────────────────────────────────────── */
+.admin-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-section {
+  background: var(--mc-panel);
+  border: var(--pixel) solid var(--mc-border);
+  box-shadow: 2px 2px 0 var(--mc-border);
+  padding: 20px;
+}
+
+.admin-section-title {
+  font-size: 0.55rem;
+  color: var(--mc-text-gold);
+  text-shadow: 1px 1px 0 #000;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--mc-cobble);
+}
+
+/* ── Flash messages ─────────────────────────────────────────── */
+.flash {
+  padding: 10px 16px;
+  font-size: 0.7rem;
+  border: var(--pixel) solid var(--mc-border);
+  margin-bottom: 0;
+}
+.flash-ok  { background: rgba(23,235,79,0.12);  border-left: 3px solid var(--mc-emerald);  color: var(--mc-text-green); }
+.flash-err { background: rgba(204,0,0,0.15);     border-left: 3px solid var(--mc-redstone); color: var(--mc-text-red); }
+
+/* ── Stat grid ──────────────────────────────────────────────── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  background: var(--mc-dark);
+  border: var(--pixel) solid var(--mc-border);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stat-card.ok   { border-top: 3px solid var(--mc-emerald); }
+.stat-card.warn { border-top: 3px solid var(--mc-gold); }
+.stat-card.fail { border-top: 3px solid var(--mc-redstone); }
+
+.stat-dot {
+  width: 10px; height: 10px;
+  border: 1px solid rgba(0,0,0,0.5);
+  margin-bottom: 4px;
+}
+.stat-dot.ok   { background: var(--mc-emerald); }
+.stat-dot.fail { background: var(--mc-redstone); }
+
+.stat-label {
+  font-size: 0.4rem;
+  color: var(--mc-text-dim);
+  letter-spacing: 0.04em;
+}
+.stat-value {
+  font-size: 0.55rem;
+  color: var(--mc-text);
+}
+.stat-value.big { font-size: 1.1rem; color: var(--mc-text-gold); }
+.stat-sub { font-size: 0.65rem; color: var(--mc-text-dim); }
+.mt-8 { margin-top: 8px; }
+
+/* ── Upload form ────────────────────────────────────────────── */
+.upload-form { display: flex; flex-direction: column; gap: 10px; }
+.upload-title { max-width: 500px; }
+
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.file-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.file-input { display: none; }
+.file-name {
+  font-size: 0.45rem;
+  color: var(--mc-text-dim);
+}
+
+/* ── Filters ────────────────────────────────────────────────── */
+.doc-filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.filter-tabs { display: flex; gap: 0; }
+
+.filter-tab {
+  font-size: 0.42rem;
+  padding: 8px 14px;
+  color: var(--mc-text-dim);
+  text-decoration: none;
+  border: 1px solid var(--mc-border);
+  border-right: none;
+  background: var(--mc-dark);
+  letter-spacing: 0.03em;
+}
+.filter-tab:last-child { border-right: 1px solid var(--mc-border); }
+.filter-tab:hover  { color: var(--mc-text); background: var(--mc-panel); }
+.filter-tab.active { color: var(--mc-text-gold); background: var(--mc-obsidian); border-bottom-color: var(--mc-gold); }
+
+.filter-count {
+  font-size: 0.4rem;
+  background: var(--mc-cobble);
+  padding: 1px 5px;
+  margin-left: 4px;
+  color: var(--mc-text);
+}
+
+.search-form { display: flex; gap: 8px; margin-left: auto; }
+.search-input { max-width: 200px; padding: 7px 10px; font-size: 0.75rem; }
+
+/* ── Admin table ────────────────────────────────────────────── */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.admin-table th {
+  font-size: 0.4rem;
+  color: var(--mc-text-dim);
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: var(--pixel) solid var(--mc-cobble);
+  background: var(--mc-obsidian);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+  vertical-align: middle;
+  color: var(--mc-text);
+}
+.admin-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+.doc-title  { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-source { color: var(--mc-text-dim); font-size: 0.75rem; }
+.doc-date   { color: var(--mc-text-dim); font-size: 0.75rem; white-space: nowrap; }
+.doc-actions { white-space: nowrap; display: flex; gap: 6px; }
+.empty-row  { text-align: center; color: var(--mc-stone); font-size: 0.45rem; padding: 24px; }
+
+/* ── Status badges ──────────────────────────────────────────── */
+.status-badge {
+  font-size: 0.4rem;
+  padding: 3px 7px;
+  border: 1px solid;
+  white-space: nowrap;
+  font-family: 'Press Start 2P', monospace;
+}
+.status-indexed  { color: var(--mc-text-green);  border-color: var(--mc-emerald);  background: rgba(23,235,79,0.1); }
+.status-pending  { color: var(--mc-text-gold);   border-color: var(--mc-gold);     background: rgba(252,204,71,0.1); }
+.status-indexing { color: var(--mc-text-aqua);   border-color: var(--mc-diamond);  background: rgba(74,255,254,0.1); }
+.status-failed   { color: var(--mc-text-red);    border-color: var(--mc-redstone); background: rgba(204,0,0,0.1); }
+
+/* ── Action buttons ─────────────────────────────────────────── */
+.action-btn {
+  font-size: 0.45rem;
+  padding: 5px 9px;
+  background: var(--mc-dark);
+  color: var(--mc-text-dim);
+  border: 1px solid var(--mc-cobble);
+  cursor: pointer;
+  transition: color 0.1s, background 0.1s;
+}
+.action-btn:hover  { color: var(--mc-text); background: var(--mc-panel); }
+.action-btn.danger:hover { color: var(--mc-text-red); border-color: var(--mc-redstone); }
+
+/* ── Edit form ──────────────────────────────────────────────── */
+.edit-form { max-width: 480px; display: flex; flex-direction: column; gap: 14px; }
+.form-row  { display: flex; flex-direction: column; gap: 6px; }
+.form-actions { display: flex; gap: 10px; margin-top: 8px; align-items: flex-end; }
+
+/* ── Pagination ─────────────────────────────────────────────── */
+.pagination-wrap { margin-top: 16px; }
+
+.pagination {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  font-size: 0.4rem;
+  padding: 6px 10px;
+  border: 1px solid var(--mc-cobble);
+  background: var(--mc-dark);
+  color: var(--mc-text-dim);
+  text-decoration: none;
+  cursor: pointer;
+}
+.page-btn:hover:not(.disabled):not(.active) { background: var(--mc-panel); color: var(--mc-text); }
+.page-btn.active   { background: var(--mc-grass-dark); color: var(--mc-text-green); border-color: var(--mc-grass); }
+.page-btn.disabled { opacity: 0.35; cursor: default; }

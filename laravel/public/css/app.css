@@ -1,0 +1,687 @@
+/* ============================================================
+   MinecraftChat AI — Theme
+   Palette sourced from in-game UI, minecraft.wiki, minecraft.net
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+  --mc-void:        #0A0A0F;
+  --mc-obsidian:    #14091E;
+  --mc-dark:        #1C1C1C;
+  --mc-panel:       #2D2D2D;
+  --mc-stone:       #7F7F7F;
+  --mc-cobble:      #5A5A5A;
+  --mc-border:      #000000;
+
+  --mc-grass:       #5A8A2D;
+  --mc-grass-light: #8FBE52;
+  --mc-grass-dark:  #3D5E1F;
+  --mc-leaf:        #4A7A28;
+
+  --mc-dirt:        #966C3E;
+  --mc-wood:        #B5883A;
+  --mc-sand:        #DBD09B;
+
+  --mc-sky:         #6B8CFF;
+  --mc-water:       #3B5BAC;
+
+  --mc-gold:        #FCCC47;
+  --mc-diamond:     #4AFFFE;
+  --mc-emerald:     #17EB4F;
+  --mc-redstone:    #CC0000;
+  --mc-lapis:       #1845A0;
+  --mc-netherite:   #474249;
+
+  --mc-ui-bg:       #C6C6C6;
+  --mc-ui-light:    #FFFFFF;
+  --mc-ui-shadow:   #555555;
+  --mc-btn-face:    #808080;
+  --mc-btn-hover:   #A0A0FF;
+
+  --mc-chat-bg:     rgba(0,0,0,0.55);
+  --mc-user-bg:     #12204A;
+  --mc-user-border: #3B5BAC;
+  --mc-bot-bg:      #132310;
+  --mc-bot-border:  #5A8A2D;
+
+  --mc-text:        #F0F0F0;
+  --mc-text-dim:    #AAAAAA;
+  --mc-text-gold:   #FCCC47;
+  --mc-text-green:  #55FF55;
+  --mc-text-aqua:   #55FFFF;
+  --mc-text-red:    #FF5555;
+
+  --radius: 2px;
+  --pixel:  2px;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: -webkit-fill-available; }
+
+/* ── Body ──────────────────────────────────────────────────── */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+  background-color: var(--mc-dark);
+  background-image:
+    linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--mc-text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+}
+
+.pixel { font-family: 'Press Start 2P', monospace; }
+
+/* ── Header ────────────────────────────────────────────────── */
+header {
+  background: linear-gradient(
+    to bottom,
+    var(--mc-grass-light) 0%,
+    var(--mc-grass)       35%,
+    var(--mc-grass-dark)  65%,
+    var(--mc-dirt)        100%
+  );
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 var(--pixel) 0 var(--mc-border), 0 4px 0 var(--mc-grass-dark);
+}
+
+header .mc-icon {
+  font-size: 1.6rem;
+  filter: drop-shadow(2px 2px 0 #000);
+}
+
+header h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 rgba(0,0,0,0.4);
+  line-height: 1.4;
+}
+
+header .mc-version {
+  margin-left: auto;
+  font-size: 0.55rem;
+  color: var(--mc-text-gold);
+  text-shadow: 1px 1px 0 #000;
+  opacity: 0.9;
+}
+
+/* ── Status bar ────────────────────────────────────────────── */
+#status-bar {
+  background: var(--mc-obsidian);
+  border-bottom: var(--pixel) solid var(--mc-border);
+  padding: 5px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.65rem;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.svc { display: flex; align-items: center; gap: 6px; color: var(--mc-text-dim); }
+
+.dot {
+  width: 10px; height: 10px;
+  border: 1px solid rgba(0,0,0,0.6);
+  flex-shrink: 0;
+}
+.dot.ok       { background: var(--mc-emerald);  box-shadow: inset 1px 1px rgba(255,255,255,0.4); }
+.dot.fail     { background: var(--mc-redstone); box-shadow: inset 1px 1px rgba(255,255,255,0.3); }
+.dot.checking { background: var(--mc-stone); animation: mc-pulse 1s steps(2) infinite; }
+
+@keyframes mc-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1.0; }
+}
+
+#status-ready { margin-left: auto; font-size: 0.5rem; }
+#status-ready.ok       { color: var(--mc-text-green); }
+#status-ready.fail     { color: var(--mc-text-red); }
+#status-ready.checking { color: var(--mc-text-dim); }
+
+/* ── Chat window ───────────────────────────────────────────── */
+#chat-window {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mc-cobble) var(--mc-void);
+}
+#chat-window::-webkit-scrollbar       { width: 8px; }
+#chat-window::-webkit-scrollbar-track { background: var(--mc-void); }
+#chat-window::-webkit-scrollbar-thumb { background: var(--mc-cobble); border: 1px solid #000; }
+
+/* ── Messages ──────────────────────────────────────────────── */
+.message { display: flex; flex-direction: column; max-width: 78%; }
+.message.user { align-self: flex-end;   align-items: flex-end; }
+.message.bot  { align-self: flex-start; align-items: flex-start; }
+
+.bubble {
+  padding: 12px 15px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.9rem;
+  border: var(--pixel) solid var(--mc-border);
+  position: relative;
+}
+
+.message.user .bubble {
+  background: var(--mc-user-bg);
+  border-top: var(--pixel) solid var(--mc-user-border);
+  box-shadow: inset 1px 1px rgba(255,255,255,0.06), 2px 2px 0 var(--mc-border);
+  border-radius: 0 0 0 var(--radius);
+}
+
+.message.bot .bubble {
+  background: var(--mc-bot-bg);
+  border-top: var(--pixel) solid var(--mc-bot-border);
+  box-shadow: inset 1px 1px rgba(255,255,255,0.06), 2px 2px 0 var(--mc-border);
+  border-radius: 0 0 var(--radius) 0;
+}
+
+/* ── Speaker labels ────────────────────────────────────────── */
+.msg-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+.message.user .msg-label { color: var(--mc-sky); }
+.message.bot  .msg-label { color: var(--mc-grass-light); }
+
+/* ── Sources ───────────────────────────────────────────────── */
+.sources {
+  margin-top: 7px;
+  font-size: 0.7rem;
+  color: var(--mc-text-dim);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.sources::before { content: '📖'; font-size: 0.8rem; margin-right: 2px; }
+.sources span {
+  background: var(--mc-panel);
+  border: 1px solid var(--mc-cobble);
+  padding: 2px 7px;
+  font-size: 0.65rem;
+  color: var(--mc-text-aqua);
+}
+
+/* ── Thinking animation ────────────────────────────────────── */
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: var(--mc-bot-bg);
+  border: var(--pixel) solid var(--mc-border);
+  border-top: var(--pixel) solid var(--mc-bot-border);
+  box-shadow: 2px 2px 0 var(--mc-border);
+}
+.thinking .block {
+  width: 10px; height: 10px;
+  border: 1px solid var(--mc-border);
+  animation: mc-bounce 1.1s steps(3) infinite;
+}
+.thinking .block:nth-child(1) { background: var(--mc-grass); }
+.thinking .block:nth-child(2) { background: var(--mc-wood);  animation-delay: 0.18s; }
+.thinking .block:nth-child(3) { background: var(--mc-stone); animation-delay: 0.36s; }
+
+@keyframes mc-bounce {
+  0%, 80%, 100% { transform: translateY(0);    opacity: 0.5; }
+  40%            { transform: translateY(-6px); opacity: 1;   }
+}
+.thinking .think-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: var(--mc-text-dim);
+  margin-left: 4px;
+  animation: mc-pulse 1.1s steps(2) infinite;
+}
+
+/* ── Tab strip ─────────────────────────────────────────────── */
+.tab-strip {
+  display: flex;
+  background: var(--mc-obsidian);
+  border-top: var(--pixel) solid var(--mc-border);
+  border-bottom: var(--pixel) solid var(--mc-border);
+  padding: 0 16px;
+}
+
+.tab-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  padding: 10px 18px;
+  border: none;
+  background: none;
+  color: var(--mc-text-dim);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  letter-spacing: 0.05em;
+  transition: color 0.1s;
+  text-shadow: 1px 1px 0 #000;
+}
+.tab-btn.active { color: var(--mc-grass-light); border-bottom-color: var(--mc-grass); }
+.tab-btn:hover:not(.active) { color: var(--mc-text); }
+
+/* ── Input area ────────────────────────────────────────────── */
+#input-area {
+  background: var(--mc-panel);
+  border-top: var(--pixel) solid var(--mc-cobble);
+  padding: 14px 16px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}
+
+.tab-panel { width: 100%; display: none; gap: 10px; align-items: flex-end; }
+.tab-panel.active { display: flex; }
+.input-wrapper { flex: 1; display: flex; flex-direction: column; }
+
+textarea {
+  flex: 1;
+  resize: none;
+  background: var(--mc-void);
+  color: var(--mc-text);
+  border: var(--pixel) solid var(--mc-cobble);
+  border-bottom: var(--pixel) solid #000;
+  border-right: var(--pixel) solid #000;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  line-height: 1.5;
+  max-height: 160px;
+  overflow-y: auto;
+  outline: none;
+  caret-color: var(--mc-grass-light);
+  transition: border-color 0.15s;
+}
+textarea::placeholder { color: var(--mc-cobble); }
+textarea:focus { border-color: var(--mc-grass); box-shadow: 0 0 0 1px var(--mc-grass-dark); }
+textarea.invalid { border-color: var(--mc-redstone) !important; }
+
+.field-msg {
+  min-height: 1em;
+  margin-top: 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+}
+#error-msg { color: var(--mc-text-red); }
+
+/* ── Minecraft-style button ────────────────────────────────── */
+.mc-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.03em;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.7), 2px 2px 0 rgba(0,0,0,0.4);
+  background: linear-gradient(to bottom, #919191 0%, #696969 100%);
+  border: var(--pixel) solid var(--mc-border);
+  box-shadow:
+    inset  2px  2px rgba(255,255,255,0.30),
+    inset -2px -2px rgba(0,0,0,0.45),
+    2px 2px 0 var(--mc-border);
+  padding: 11px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: flex-end;
+  transition: background 0.05s, box-shadow 0.05s;
+}
+.mc-btn:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #8080FF 0%, #5858C8 100%);
+  box-shadow:
+    inset  2px  2px rgba(255,255,255,0.25),
+    inset -2px -2px rgba(0,0,0,0.5),
+    2px 2px 0 var(--mc-border);
+}
+.mc-btn:active:not(:disabled) {
+  background: linear-gradient(to bottom, #5858C8 0%, #3030A0 100%);
+  box-shadow:
+    inset  2px  2px rgba(0,0,0,0.35),
+    inset -2px -2px rgba(255,255,255,0.1),
+    2px 2px 0 var(--mc-border);
+  transform: translate(1px, 1px);
+}
+.mc-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Header nav ────────────────────────────────────────────── */
+.header-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: var(--mc-text-gold);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 10px;
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  text-shadow: 1px 1px 0 #000;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+.nav-btn:hover {
+  background: rgba(0,0,0,0.55);
+  color: var(--mc-text-green);
+}
+
+.nav-user {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.52rem;
+  color: var(--mc-text-aqua);
+  text-shadow: 1px 1px 0 #000;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.auth-nav-link {
+  margin-left: auto;
+  font-size: 0.55rem;
+  color: var(--mc-text-gold);
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* ── App body layout (with sidebar) ───────────────────────── */
+#app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+#main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+#sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--mc-obsidian);
+  border-right: var(--pixel) solid var(--mc-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body.sidebar-hidden #sidebar { display: none; }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--mc-border);
+  background: var(--mc-panel);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: var(--mc-text-gold);
+  text-shadow: 1px 1px 0 #000;
+  flex-shrink: 0;
+}
+
+.mc-btn-small {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.48rem;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.7);
+  background: linear-gradient(to bottom, #5a8a2d 0%, #3d5e1f 100%);
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px rgba(255,255,255,0.2), inset -1px -1px rgba(0,0,0,0.4);
+  padding: 5px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mc-btn-small:hover {
+  background: linear-gradient(to bottom, #6db034 0%, #4a7228 100%);
+}
+
+#session-list {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mc-cobble) var(--mc-void);
+  padding: 4px 0;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+  gap: 6px;
+  transition: background 0.1s;
+}
+.session-item:hover    { background: var(--mc-panel); }
+.session-item.active   { background: var(--mc-grass-dark); border-left: 3px solid var(--mc-grass); }
+
+.session-title {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--mc-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-delete {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--mc-stone);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  opacity: 0;
+  transition: opacity 0.1s, color 0.1s;
+}
+.session-item:hover .session-delete { opacity: 1; }
+.session-delete:hover { color: var(--mc-text-red); }
+
+.session-empty {
+  padding: 16px 12px;
+  font-size: 0.5rem;
+  color: var(--mc-stone);
+  text-align: center;
+  line-height: 1.8;
+}
+
+/* ── Auth pages ─────────────────────────────────────────────── */
+body.auth-page {
+  justify-content: flex-start;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100vh;
+}
+
+.auth-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.auth-box {
+  background: var(--mc-panel);
+  border: var(--pixel) solid var(--mc-border);
+  box-shadow: 4px 4px 0 var(--mc-border);
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-title {
+  font-size: 0.75rem;
+  color: var(--mc-text-gold);
+  text-shadow: 2px 2px 0 #000;
+  margin-bottom: 24px;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.auth-error {
+  background: rgba(204,0,0,0.2);
+  border: 1px solid var(--mc-redstone);
+  color: var(--mc-text-red);
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  margin-bottom: 16px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-label {
+  font-size: 0.45rem;
+  color: var(--mc-text-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: -6px;
+}
+
+.auth-input {
+  background: var(--mc-void);
+  color: var(--mc-text);
+  border: var(--pixel) solid var(--mc-cobble);
+  border-bottom: var(--pixel) solid #000;
+  border-right: var(--pixel) solid #000;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  caret-color: var(--mc-grass-light);
+}
+.auth-input:focus { border-color: var(--mc-grass); }
+.auth-input::placeholder { color: var(--mc-cobble); }
+
+.auth-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.42rem;
+  color: var(--mc-text-dim);
+  cursor: pointer;
+}
+
+.auth-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 13px;
+  align-self: auto;
+}
+
+.auth-switch {
+  margin-top: 20px;
+  font-size: 0.42rem;
+  color: var(--mc-text-dim);
+  text-align: center;
+}
+.auth-switch a {
+  color: var(--mc-text-aqua);
+  text-decoration: none;
+}
+.auth-switch a:hover { color: var(--mc-text-green); }
+
+/* ── Note panel ─────────────────────────────────────────────── */
+.note-title-input {
+  background: var(--mc-void);
+  color: var(--mc-text-gold);
+  border: var(--pixel) solid var(--mc-cobble);
+  border-bottom: 1px solid var(--mc-panel);
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  caret-color: var(--mc-grass-light);
+}
+.note-title-input::placeholder { color: var(--mc-stone); }
+.note-title-input:focus { border-color: var(--mc-grass); }
+
+.ok-msg    { color: var(--mc-text-green); }
+.error-msg { color: var(--mc-text-red); }
+
+/* ── Mobile responsive ─────────────────────────────────────── */
+@media (max-width: 540px) {
+  /* Sidebar slides in from the left as a fixed overlay */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 75%;
+    max-width: 260px;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  /* On desktop, body.sidebar-hidden sets display:none — override that on mobile
+     so the transform approach controls visibility instead */
+  body.sidebar-hidden #sidebar {
+    display: flex;
+    transform: translateX(-100%);
+  }
+
+  body.sidebar-open #sidebar {
+    transform: translateX(0);
+    box-shadow: 6px 0 24px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Tap-outside scrim */
+  #sidebar-scrim {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  body.sidebar-open #sidebar-scrim { display: block; }
+
+  .nav-user { display: none; }
+  header { padding: 10px 12px; gap: 8px; }
+  header .mc-icon { font-size: 1.2rem; }
+  header h1 { font-size: 0.7rem; }
+  #status-bar { padding: 4px 10px; gap: 8px; font-size: 0.5rem; }
+  #status-ready { font-size: 0.38rem; }
+  #chat-window { padding: 12px 10px; gap: 10px; }
+  .message { max-width: 92%; }
+  .bubble { font-size: 0.85rem; padding: 10px 11px; }
+  .tab-strip { padding: 0 8px; }
+  .tab-btn { font-size: 0.55rem; padding: 12px 14px; }
+  #input-area { padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  .tab-panel { flex-direction: column; align-items: stretch; gap: 8px; }
+  .mc-btn { width: 100%; padding: 14px 18px; align-self: auto; }
+  textarea { font-size: 1rem; }
+}

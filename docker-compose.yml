@@ -47,6 +47,8 @@ services:
       TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
       TURNSTILE_SITE_KEY_CHAT: ${TURNSTILE_SITE_KEY_CHAT}
       TURNSTILE_SECRET_KEY_CHAT: ${TURNSTILE_SECRET_KEY_CHAT}
+      OLLAMA_ENABLED: ${OLLAMA_ENABLED:-false}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -85,6 +87,8 @@ services:
       TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
       TURNSTILE_SITE_KEY_CHAT: ${TURNSTILE_SITE_KEY_CHAT}
       TURNSTILE_SECRET_KEY_CHAT: ${TURNSTILE_SECRET_KEY_CHAT}
+      OLLAMA_ENABLED: ${OLLAMA_ENABLED:-false}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -155,8 +159,19 @@ services:
       timeout: 5s
       retries: 5
 
+  # Optional local LLM — off by default (Groq, above, is the default inference
+  # backend). Not started by a plain `docker compose up`; opt in with:
+  #   docker compose --profile ollama up -d
+  ollama:
+    image: ollama/ollama
+    restart: unless-stopped
+    profiles: ["ollama"]
+    volumes:
+      - ollama_data:/root/.ollama
+
 volumes:
   opensearch_data:
   mariadb_data:
   redis_data:
   laravel_storage:
+  ollama_data:

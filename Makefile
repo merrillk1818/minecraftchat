@@ -19,19 +19,23 @@ setup: ## Copy env template, create required directories
 	@echo "  1. Edit .env with your passwords, APP_URL, and any API keys"
 	@echo "  2. Run: make dev        (local HTTP dev)"
 	@echo "       or: make up         (production, requires SSL certs in /etc/letsencrypt)"
-	@echo "  3. Run: make first-run  (generate key, migrate DB, pull Ollama model)"
+	@echo "  3. Run: make first-run  (generate key, migrate DB)"
 
-first-run: ## Generate APP_KEY, run migrations, pull Ollama model — run once after 'make up'
+first-run: ## Generate APP_KEY, run migrations — run once after 'make up'
 	docker compose exec laravel php artisan key:generate --force
 	docker compose exec laravel php artisan migrate --force
 	docker compose exec laravel php artisan storage:link 2>/dev/null || true
 	docker compose exec laravel php artisan config:cache
 	docker compose exec laravel php artisan route:cache
-	docker compose exec ollama ollama pull $(shell grep OLLAMA_MODEL .env | cut -d= -f2 | tr -d ' ' || echo llama3.2)
 	@echo ""
 	@echo "Setup complete. Create an admin account:"
 	@echo "  1. Register at /register"
 	@echo "  2. make admin-promote EMAIL=your@email.com"
+	@echo ""
+	@echo "Using local Ollama instead of/alongside Groq? It's off by default."
+	@echo "  1. Set OLLAMA_ENABLED=true in .env"
+	@echo "  2. docker compose --profile ollama up -d"
+	@echo "  3. make ollama-pull"
 
 # ── Start / stop ──────────────────────────────────────────────────────────────
 
@@ -91,7 +95,7 @@ key-generate: ## Generate a new Laravel APP_KEY
 
 # ── Ollama ────────────────────────────────────────────────────────────────────
 
-ollama-pull: ## Pull the configured Ollama model
+ollama-pull: ## Pull the configured Ollama model (requires OLLAMA_ENABLED=true + the ollama profile running)
 	docker compose exec ollama ollama pull $(shell grep OLLAMA_MODEL .env | cut -d= -f2 | tr -d ' ' || echo llama3.2)
 
 # ── Admin ─────────────────────────────────────────────────────────────────────

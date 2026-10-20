@@ -56,9 +56,13 @@ class DashboardController extends Controller
             Log::warning('Admin dashboard: python-api health check failed', ['message' => $e->getMessage()]);
         }
 
-        try { $ollamaOk = Http::timeout(3)->get('http://ollama:11434/api/tags')->successful(); } catch (\Exception) {}
+        $ollamaEnabled = filter_var(env('OLLAMA_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
+        if ($ollamaEnabled) {
+            $ollamaUrl = rtrim(env('OLLAMA_URL', 'http://ollama:11434'), '/');
+            try { $ollamaOk = Http::timeout(3)->get("{$ollamaUrl}/api/tags")->successful(); } catch (\Exception) {}
+        }
 
-        return view('admin.dashboard', compact('docStats', 'userStats', 'queueStats', 'apiOk', 'ollamaOk', 'groqOk', 'groqDetail'));
+        return view('admin.dashboard', compact('docStats', 'userStats', 'queueStats', 'apiOk', 'ollamaEnabled', 'ollamaOk', 'groqOk', 'groqDetail'));
     }
 
     public function scrape(Request $request)

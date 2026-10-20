@@ -24,11 +24,20 @@
       <div class="stat-label pixel">PYTHON API</div>
       <div class="stat-value pixel">{{ $apiOk ? 'ONLINE' : 'OFFLINE' }}</div>
     </div>
-    <div class="stat-card {{ $ollamaOk ? 'ok' : 'fail' }}">
-      <div class="stat-dot {{ $ollamaOk ? 'ok' : 'fail' }}"></div>
-      <div class="stat-label pixel">OLLAMA</div>
-      <div class="stat-value pixel">{{ $ollamaOk ? 'ONLINE' : 'OFFLINE' }}</div>
-    </div>
+    @if($ollamaEnabled)
+      <div class="stat-card {{ $ollamaOk ? 'ok' : 'fail' }}">
+        <div class="stat-dot {{ $ollamaOk ? 'ok' : 'fail' }}"></div>
+        <div class="stat-label pixel">OLLAMA</div>
+        <div class="stat-value pixel">{{ $ollamaOk ? 'ONLINE' : 'OFFLINE' }}</div>
+      </div>
+    @else
+      <div class="stat-card warn">
+        <div class="stat-dot warn"></div>
+        <div class="stat-label pixel">OLLAMA</div>
+        <div class="stat-value pixel">DISABLED</div>
+        <div class="stat-sub">set OLLAMA_ENABLED=true to use</div>
+      </div>
+    @endif
     <div class="stat-card {{ $groqOk ? 'ok' : 'fail' }}">
       <div class="stat-dot {{ $groqOk ? 'ok' : 'fail' }}"></div>
       <div class="stat-label pixel">GROQ</div>

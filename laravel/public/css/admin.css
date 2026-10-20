@@ -104,6 +104,7 @@
 }
 .stat-dot.ok   { background: var(--mc-emerald); }
 .stat-dot.fail { background: var(--mc-redstone); }
+.stat-dot.warn { background: var(--mc-gold); }
 
 .stat-label {
   font-size: 0.4rem;

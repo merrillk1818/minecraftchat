@@ -1,3 +1,6 @@
+import logging
+import time
+
 from groq import Groq
 from sentence_transformers import SentenceTransformer
 from opensearchpy import OpenSearch
@@ -6,6 +9,10 @@ from config import (
     GROQ_API_KEY, GROQ_MODEL,
     EMBEDDING_MODEL, TOP_K, SYSTEM_PROMPT
 )
+
+logger = logging.getLogger("minecraftchat.chatbot")
+
+GROQ_HEALTH_CACHE_TTL = 30  # seconds
 
 
 class Chatbot:
@@ -17,6 +24,40 @@ class Chatbot:
             http_compress=True,
         )
         self._ensure_index()
+        self._groq_health_cache = {"checked_at": 0.0, "result": None}
+
+    def check_groq(self) -> dict:
+        """Verify the configured Groq model is actually reachable and valid.
+
+        Checking that GROQ_API_KEY is merely set isn't enough — Groq
+        periodically retires models (e.g. llama-3.3-70b-versatile), which
+        returns a 404 from the chat endpoint while /health stayed green.
+        This confirms the configured model ID still exists on Groq's side.
+        """
+        now = time.monotonic()
+        cached = self._groq_health_cache
+        if cached["result"] is not None and (now - cached["checked_at"]) < GROQ_HEALTH_CACHE_TTL:
+            return cached["result"]
+
+        if not GROQ_API_KEY:
+            result = {"ok": False, "model": GROQ_MODEL, "detail": "GROQ_API_KEY is not set"}
+        else:
+            try:
+                available = {m.id for m in self.groq.models.list().data}
+                if GROQ_MODEL in available:
+                    result = {"ok": True, "model": GROQ_MODEL, "detail": None}
+                else:
+                    result = {
+                        "ok": False,
+                        "model": GROQ_MODEL,
+                        "detail": f"model '{GROQ_MODEL}' is not in Groq's current model list (retired or mistyped?)",
+                    }
+            except Exception as e:
+                logger.exception("Groq health check failed")
+                result = {"ok": False, "model": GROQ_MODEL, "detail": str(e)}
+
+        self._groq_health_cache = {"checked_at": now, "result": result}
+        return result
 
     def _ensure_index(self):
         if self.os_client.indices.exists(index=OPENSEARCH_INDEX):

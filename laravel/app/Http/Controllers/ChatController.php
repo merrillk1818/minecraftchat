@@ -8,6 +8,7 @@ use App\Rules\Turnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -90,6 +91,12 @@ class ChatController extends Controller
             $response = $this->aiHttp()->timeout(120)->post("{$this->aiUrl}/chat", $payload);
 
             if ($response->failed()) {
+                Log::error('AI service error', [
+                    'session_id' => $pythonSessionId,
+                    'status'     => $response->status(),
+                    'body'       => mb_substr($response->body(), 0, 2000),
+                ]);
+
                 return response()->json(['error' => 'AI service error'], 503);
             }
 
@@ -109,6 +116,11 @@ class ChatController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('AI service unreachable', [
+                'session_id' => $pythonSessionId,
+                'message'    => $e->getMessage(),
+            ]);
+
             return response()->json(['error' => 'AI service unreachable'], 503);
         }
     }
@@ -152,21 +164,23 @@ class ChatController extends Controller
 
     public function status()
     {
-        $apiOk  = false;
-        $groqOk = false;
+        $apiOk = false;
+        $groq  = ['ok' => false, 'model' => null, 'detail' => null];
 
         try {
-            $res    = $this->aiHttp()->timeout(5)->get("{$this->aiUrl}/health");
-            $apiOk  = $res->successful();
-            $groqOk = $res->json('groq', false);
-        } catch (\Exception) {}
+            $res   = $this->aiHttp()->timeout(5)->get("{$this->aiUrl}/health");
+            $apiOk = $res->successful();
+            $groq  = $res->json('groq', $groq);
+        } catch (\Exception $e) {
+            Log::warning('Status check: python-api unreachable', ['message' => $e->getMessage()]);
+        }
 
         $docCount = \App\Models\Document::where('status', 'indexed')->count();
 
         return response()->json([
             'services' => [
                 'api'        => ['ok' => $apiOk],
-                'groq'       => ['ok' => $groqOk],
+                'groq'       => $groq,
                 'opensearch' => ['docs' => $docCount],
             ],
         ]);

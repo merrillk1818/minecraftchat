@@ -29,6 +29,14 @@
       <div class="stat-label pixel">OLLAMA</div>
       <div class="stat-value pixel">{{ $ollamaOk ? 'ONLINE' : 'OFFLINE' }}</div>
     </div>
+    <div class="stat-card {{ $groqOk ? 'ok' : 'fail' }}">
+      <div class="stat-dot {{ $groqOk ? 'ok' : 'fail' }}"></div>
+      <div class="stat-label pixel">GROQ</div>
+      <div class="stat-value pixel">{{ $groqOk ? 'ONLINE' : 'OFFLINE' }}</div>
+      @if(!$groqOk && $groqDetail)
+        <div class="stat-sub">{{ \Illuminate\Support\Str::limit($groqDetail, 70) }}</div>
+      @endif
+    </div>
     <div class="stat-card">
       <div class="stat-label pixel">QUEUE — UPLOADS</div>
       <div class="stat-value pixel">{{ $queueStats['uploads'] }}</div>

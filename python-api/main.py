@@ -2,6 +2,7 @@
 # Author: Kenny Merrill
 # Description: FastAPI application for chat, indexing, and web crawling
 
+import logging
 import os
 from contextlib import asynccontextmanager
 from typing import Optional
@@ -12,6 +13,9 @@ from starlette.responses import JSONResponse
 from pydantic import BaseModel
 
 from chatbot import Chatbot
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger("minecraftchat.api")
 
 INTERNAL_KEY = os.environ.get("INTERNAL_API_KEY", "")
 
@@ -80,8 +84,9 @@ class CrawlRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    from config import GROQ_API_KEY
-    return {"status": "ok", "groq": bool(GROQ_API_KEY)}
+    if chatbot is None:
+        return {"status": "starting", "groq": {"ok": False, "model": None, "detail": "chatbot not initialized yet"}}
+    return {"status": "ok", "groq": chatbot.check_groq()}
 
 
 @app.post("/chat")
@@ -97,6 +102,7 @@ def chat(req: ChatRequest):
         )
         return {"response": response, "session_id": req.session_id}
     except Exception as e:
+        logger.exception("Chat request failed (session_id=%s)", req.session_id)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -113,6 +119,7 @@ def index_docs(req: IndexRequest):
         )
         return {"indexed": count, "data_type": req.data_type}
     except Exception as e:
+        logger.exception("Index-directory request failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -130,6 +137,7 @@ def index_document(req: DocumentIndexRequest):
         )
         return {"chunks_indexed": count}
     except Exception as e:
+        logger.exception("Index-document request failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -141,6 +149,7 @@ def crawl(req: CrawlRequest):
         count = crawler.crawl(req.start_url, max_pages=req.max_pages)
         return {"indexed": count, "pages_visited": len(crawler.visited)}
     except Exception as e:
+        logger.exception("Crawl request failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -152,6 +161,7 @@ def delete_document(doc_id: int):
         deleted = indexer.delete_doc(doc_id)
         return {"deleted": deleted}
     except Exception as e:
+        logger.exception("Delete-document request failed (doc_id=%s)", doc_id)
         raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -8,6 +8,7 @@ use App\Models\Document;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 
 class DashboardController extends Controller
@@ -38,14 +39,26 @@ class DashboardController extends Controller
             'default'  => Queue::size('default'),
         ];
 
-        $aiUrl   = rtrim(config('services.python_api.url', env('AI_API_URL', 'http://python-api:8000')), '/');
-        $apiOk   = false;
-        $ollamaOk = false;
+        $aiUrl      = rtrim(config('services.python_api.url', env('AI_API_URL', 'http://python-api:8000')), '/');
+        $apiOk      = false;
+        $ollamaOk   = false;
+        $groqOk     = false;
+        $groqDetail = null;
 
-        try { $apiOk    = Http::timeout(3)->get("{$aiUrl}/health")->successful(); } catch (\Exception) {}
+        try {
+            $health = Http::timeout(3)->get("{$aiUrl}/health");
+            $apiOk  = $health->successful();
+            if ($apiOk) {
+                $groqOk     = (bool) $health->json('groq.ok', false);
+                $groqDetail = $health->json('groq.detail');
+            }
+        } catch (\Exception $e) {
+            Log::warning('Admin dashboard: python-api health check failed', ['message' => $e->getMessage()]);
+        }
+
         try { $ollamaOk = Http::timeout(3)->get('http://ollama:11434/api/tags')->successful(); } catch (\Exception) {}
 
-        return view('admin.dashboard', compact('docStats', 'userStats', 'queueStats', 'apiOk', 'ollamaOk'));
+        return view('admin.dashboard', compact('docStats', 'userStats', 'queueStats', 'apiOk', 'ollamaOk', 'groqOk', 'groqDetail'));
     }
 
     public function scrape(Request $request)

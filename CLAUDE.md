@@ -34,9 +34,11 @@ Minecraft wiki content. Fully self-hostable Docker stack — bring your own serv
 | `redis` | redis:7-alpine | Queue backend, cache, rate-limit counters |
 | `opensearch` | opensearchproject/opensearch:2.13.0 | Vector search (knn 384-dim) |
 | `mariadb` | mariadb:11.3 | Relational data, source of truth |
-| `ollama` | ollama/ollama | Local LLM (llama3.2, CPU-only) |
+| `ollama` *(optional)* | ollama/ollama | Local LLM runtime — off by default (`profiles: [ollama]`), **not called anywhere in the chat path** |
 
-Only nginx exposes host ports (80, 443). All others are Docker-internal.
+Only nginx exposes host ports (80, 443). All others are Docker-internal. Groq is the only LLM
+backend actually wired into `chatbot.py` — Ollama is an opt-in extra container plus an admin
+dashboard status card, nothing more, unless someone adds code to actually call it.
 
 ---
 
@@ -49,8 +51,9 @@ Key vars in root `.env`:
 ```
 APP_ENV, APP_KEY, APP_URL
 DB_ROOT_PASSWORD, DB_DATABASE, DB_USERNAME, DB_PASSWORD
-OPENSEARCH_INDEX, OLLAMA_MODEL
-GROQ_API_KEY, GROQ_MODEL   # optional cloud LLM fallback/alternative to local Ollama
+OPENSEARCH_INDEX
+GROQ_API_KEY, GROQ_MODEL   # the only LLM backend actually called by chatbot.py
+OLLAMA_ENABLED, OLLAMA_URL, OLLAMA_MODEL   # optional, off by default — see Docker stack above
 INTERNAL_API_KEY          # shared secret: Laravel → Python API (X-Internal-Key header)
 TURNSTILE_SITE_KEY        # Cloudflare Turnstile — login/register (Managed)
 TURNSTILE_SECRET_KEY
@@ -137,23 +140,26 @@ make docs-import FILE=path/to/file.txt
 make docs-import-dir DIR=/path/to/dir
 make admin-promote EMAIL=user@email.com
 
-# Ollama
+# Ollama (optional — requires OLLAMA_ENABLED=true + the ollama profile running)
+docker compose --profile ollama up -d
+make ollama-pull
 docker compose exec ollama ollama list
-docker compose exec ollama ollama pull llama3.2
 ```
 
 ---
 
 ## Current state
 
-All four phases complete:
 - Phase 1: Core chat UI live
 - Phase 1.5: Document import and indexing pipeline
 - Phase 2: User auth, session history, notes, mobile sidebar
 - Phase 3: Admin panel — document management, user management, dashboard
+- Phase 4: Migrated primary inference from local Ollama to Groq; Ollama now optional/opt-in,
+  not wired into chat; Groq model health actually verified (not just "is a key set"), with
+  failures logged instead of swallowed
 - Security: Python API fully internal, Turnstile, rate limiting, internal API key
 
-See `docs/ROADMAP.md` Future/Backlog for next work (streaming responses, GPU, hybrid search, user notes in search context).
+See `docs/ROADMAP.md` Future/Backlog for next work (streaming responses, hybrid search, user notes in search context).
 
 This repo is a sanitized public template — no production server details, credentials, or
 deployment targets are included. Point `.env`, `nginx/conf.d/default.conf`, and the GitHub

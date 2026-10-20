@@ -68,6 +68,27 @@ Admins have visibility and control over the knowledge base and users.
 
 ---
 
+## Phase 4 — Groq Migration ✅ Complete
+
+Switched primary inference from local Ollama (CPU, ~30-120s per response) to Groq's cloud API
+(seconds, no GPU needed). Ollama is no longer wired into the chat pipeline at all.
+
+- `chatbot.py` calls `groq.chat.completions.create(...)` exclusively — no Ollama call left anywhere in the RAG path
+- `ollama` service removed from `docker-compose.yml`, later re-added behind `profiles: [ollama]` — off by default, opt-in only, not started by a plain `docker compose up`
+- Admin dashboard's OLLAMA card now gated by `OLLAMA_ENABLED` (default `false`); shows DISABLED instead of pinging a container that may not exist
+- `make first-run` no longer tries to pull an Ollama model unconditionally
+
+**Incident + fix (2026-10-20):** Groq retired the configured model (`llama-3.3-70b-versatile`), which
+broke chat with a generic "AI service error" — `GET /health` only checked that `GROQ_API_KEY` was
+set, not that the model still existed, so there was no signal before users hit it.
+- Switched default model to `openai/gpt-oss-120b` (verified against Groq's live `/v1/models`)
+- `/health` now actually checks the configured model against Groq's current model list, cached 30s
+- Both Laravel and the Python API log the real failure (status, body, traceback) instead of
+  swallowing it — `docker compose logs python-api` / `logs laravel` (`LOG_CHANNEL=stderr`)
+- Admin dashboard shows a GROQ status card sourced from the real check, with the failure reason
+
+---
+
 ## Security hardening ✅ Complete (parallel with Phase 3)
 
 - Python API removed from public Nginx routing — only reachable inside Docker network
@@ -85,9 +106,11 @@ Admins have visibility and control over the knowledge base and users.
 Not planned for a current phase, tracked here for reference.
 
 ### Performance
-- **Streaming responses** — switch Ollama call to streaming; push tokens to the browser via SSE or chunked transfer. Removes the 30–120 second wait before any text appears.
-- **GPU acceleration** — move Ollama to a machine with an NVIDIA GPU. llama3.2 goes from ~60s on 4 CPU cores to ~2s. Most impactful single change.
-- **Faster model** — `llama3.2:1b` (1 billion params) infers ~4× faster than the default 3B model on CPU, at some quality cost.
+Groq's cloud inference already resolved the original multi-second CPU-bound wait these items were
+written for. They're only relevant to someone who enables the optional local Ollama path instead.
+- **Streaming responses** — stream Groq's completion to the browser via SSE or chunked transfer instead of waiting for the full response.
+- **Ollama GPU acceleration** — if using the optional local path, move it to a machine with an NVIDIA GPU; llama3.2 goes from ~60s on 4 CPU cores to ~2s.
+- **Ollama faster model** — if using the optional local path, `llama3.2:1b` infers ~4× faster than the default 3B model on CPU, at some quality cost.
 
 ### Search quality
 - **User notes in search** — surfacing `data_type=user` chunks requires passing a trusted user token to the Python API (not just a raw user_id). Needs a signed session token or JWT shared between Laravel and Python.
@@ -117,8 +140,8 @@ Key architecture decisions, recorded to avoid re-litigation.
 
 | Decision | Choice | Why |
 |---|---|---|
-| Hosting | Hetzner CPX41 (4 vCPU, 16 GB RAM) | More RAM per dollar than DigitalOcean; Ollama needs ~4 GB for llama3.2 |
-| LLM | Ollama (local) not OpenAI API | Zero per-query cost; full data privacy; offline capable |
+| Hosting | Hetzner CPX41 (4 vCPU, 16 GB RAM) | More RAM per dollar than DigitalOcean; sized for OpenSearch + the full stack headroom |
+| LLM | Groq (cloud) — originally Ollama (local) | Started local-only for zero per-query cost and full data privacy; switched to Groq because CPU-only hosting made Ollama's 30-120s responses impractical. Ollama remains available as an opt-in container (see Phase 4) if self-hosting the LLM matters more than response latency |
 | Vector DB | OpenSearch (single index) | One index is simpler than per-user shards; fast metadata filtering |
 | Relational DB | MariaDB as source of truth | OpenSearch is rebuildable cache; raw text lives in MariaDB |
 | Queue backend | Redis | Network-accessible for future distributed workers; priority queue support |

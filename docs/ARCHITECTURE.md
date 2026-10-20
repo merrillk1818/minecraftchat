@@ -19,7 +19,7 @@ Nginx  (reverse proxy, rate limiting, HSTS)
               └─ Python API      (internal Docker network only, X-Internal-Key required)
                     │
                     ├─ OpenSearch  (vector search, knn embeddings)
-                    └─ Ollama      (local LLM inference — llama3.2)
+                    └─ Groq         (cloud LLM inference)
 
 Queue Worker  (same Laravel image, separate container)
   ├─ Reads Redis queues: uploads, crawlers, default
@@ -41,7 +41,7 @@ The Python API has **no public route**. Nginx does not proxy to it. It is reacha
 | `redis` | redis:7-alpine | 6379 | Queue backend, Laravel cache |
 | `opensearch` | opensearchproject/opensearch:2.13.0 | 9200 | Vector search (knn, 384-dim) |
 | `mariadb` | mariadb:11.3 | 3306 | Relational data, document source of truth |
-| `ollama` | ollama/ollama | 11434 | Local LLM (llama3.2, CPU) |
+| `ollama` *(optional)* | ollama/ollama | 11434 | Local LLM runtime — off by default (`profiles: [ollama]`), not wired into the chat pipeline; see README |
 
 All services run on the `mcnet` Docker bridge. Only `nginx` exposes host ports.
 
@@ -57,10 +57,18 @@ All services run on the `mcnet` Docker bridge. Only `nginx` exposes host ports.
 4. Python API embeds the question with `all-MiniLM-L6-v2` (384 dimensions)
 5. OpenSearch knn search returns the top-K most semantically similar document chunks, filtered to `data_type=public`
 6. Chunks are assembled into a context block injected into a prompt
-7. Ollama runs `llama3.2` inference locally and streams back a completion
+7. Groq runs the configured model (`GROQ_MODEL`, `openai/gpt-oss-120b` by default) and returns a completion
 8. Laravel stores the assistant reply in MariaDB (auth'd users) and returns JSON to the browser
 
-No data ever leaves the server. No third-party AI API is called.
+The question and retrieved context are sent to Groq's API for inference — that's the one point
+where data leaves the server. Everything else (embeddings, vector search, storage) stays local.
+
+`GET /health` on the Python API verifies the configured `GROQ_MODEL` actually exists in Groq's
+current model list (not just that `GROQ_API_KEY` is set) — Groq periodically retires models, which
+previously surfaced to users as a generic "AI service error" with no indication of the real cause.
+The admin dashboard's GROQ status card reads this check; failures are also logged with the real
+exception/response body (`docker compose logs python-api` / `logs laravel`, `LOG_CHANNEL=stderr`)
+instead of being swallowed silently.
 
 ---
 
@@ -237,7 +245,7 @@ minecraftchat.ai/
 ├── python-api/
 │   ├── Dockerfile                        ← python:3.11-slim
 │   ├── main.py                           ← FastAPI app, InternalKeyMiddleware
-│   ├── chatbot.py                        ← embed → knn search → Ollama → response
+│   ├── chatbot.py                        ← embed → knn search → Groq → response
 │   ├── indexer.py                        ← chunk text → embed → bulk index to OpenSearch
 │   ├── crawler.py                        ← Polite wiki crawler (minecraft.wiki)
 │   ├── config.py                         ← All env-var config
